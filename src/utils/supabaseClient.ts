@@ -5,26 +5,14 @@ let currentUrl: string = '';
 let currentKey: string = '';
 
 export function getSupabaseCredentials() {
-  const url = localStorage.getItem('qrshield_supabase_url') || '';
-  const key = localStorage.getItem('qrshield_supabase_key') || '';
+  const url = (import.meta.env.VITE_SUPABASE_URL as string) || '';
+  const key = (import.meta.env.VITE_SUPABASE_ANON_KEY as string) || '';
   return { url, key };
-}
-
-export function saveSupabaseCredentials(url: string, key: string) {
-  localStorage.setItem('qrshield_supabase_url', url.trim());
-  localStorage.setItem('qrshield_supabase_key', key.trim());
-  cachedClient = null; // reset cache
-}
-
-export function clearSupabaseCredentials() {
-  localStorage.removeItem('qrshield_supabase_url');
-  localStorage.removeItem('qrshield_supabase_key');
-  cachedClient = null;
 }
 
 export function getSupabaseClient(): SupabaseClient | null {
   const { url, key } = getSupabaseCredentials();
-  if (!url || !key) return null;
+  if (!url || !key || url.includes('MY_SUPABASE_URL') || key.includes('MY_SUPABASE_ANON_KEY')) return null;
 
   if (cachedClient && currentUrl === url && currentKey === key) {
     return cachedClient;

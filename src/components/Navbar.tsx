@@ -9,12 +9,11 @@ interface NavbarProps {
     totalScans: number;
     maliciousCount: number;
   } | null;
-  onOpenSupabase: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, stats, onOpenSupabase }) => {
+export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, stats }) => {
   const { url } = getSupabaseCredentials();
-  const isSupabaseConnected = Boolean(url);
+  const isSupabaseConnected = Boolean(url && !url.includes('MY_SUPABASE_URL'));
 
   return (
     <header className="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-50">
@@ -86,20 +85,12 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, stats, 
           </button>
         </nav>
 
-        {/* Status Indicator & Supabase Button */}
+        {/* Status Indicator */}
         <div className="flex items-center space-x-3">
-          <button
-            onClick={onOpenSupabase}
-            className={`flex items-center space-x-2 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
-              isSupabaseConnected
-                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20'
-                : 'bg-slate-800 border-slate-700 text-slate-300 hover:text-white hover:bg-slate-700'
-            }`}
-          >
-            <Database className={`w-3.5 h-3.5 ${isSupabaseConnected ? 'text-emerald-400' : 'text-slate-400'}`} />
-            <span>{isSupabaseConnected ? 'Supabase Connected' : 'Connect Supabase'}</span>
-            <span className={`w-2 h-2 rounded-full ${isSupabaseConnected ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}`}></span>
-          </button>
+          <div className="hidden lg:flex items-center space-x-2 bg-slate-800/80 border border-slate-700 px-3 py-1.5 rounded-full text-xs text-slate-300">
+            <span className={`w-2 h-2 rounded-full ${isSupabaseConnected ? 'bg-emerald-400 animate-pulse' : 'bg-blue-400'}`}></span>
+            <span className="font-medium">{isSupabaseConnected ? 'Supabase Env Active' : 'Engines Active'}</span>
+          </div>
 
           {stats && stats.maliciousCount > 0 && (
             <div className="hidden sm:flex items-center space-x-1.5 bg-red-500/10 border border-red-500/30 px-3 py-1.5 rounded-full text-xs text-red-400 font-medium">

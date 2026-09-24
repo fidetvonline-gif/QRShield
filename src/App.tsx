@@ -5,19 +5,14 @@ import { ScannerView } from './components/ScannerView';
 import { PlaygroundView } from './components/PlaygroundView';
 import { HistoryView } from './components/HistoryView';
 import { ReportModal } from './components/ReportModal';
-import { SupabaseModal } from './components/SupabaseModal';
 import { ScanRecord, SystemStats } from './types';
-import { getSupabaseClient, getSupabaseCredentials } from './utils/supabaseClient';
+import { getSupabaseClient } from './utils/supabaseClient';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [scans, setScans] = useState<ScanRecord[]>([]);
   const [stats, setStats] = useState<SystemStats | null>(null);
   const [selectedScan, setSelectedScan] = useState<ScanRecord | null>(null);
-  const [isSupabaseModalOpen, setIsSupabaseModalOpen] = useState<boolean>(() => {
-    const { url } = getSupabaseCredentials();
-    return !url; // Open automatically if keys are not yet added
-  });
   const [loading, setLoading] = useState<boolean>(true);
 
   const fetchData = async () => {
@@ -152,7 +147,6 @@ export default function App() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         stats={stats}
-        onOpenSupabase={() => setIsSupabaseModalOpen(true)}
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -193,15 +187,6 @@ export default function App() {
           }}
         />
       )}
-
-      {/* Supabase Connection Modal */}
-      <SupabaseModal
-        isOpen={isSupabaseModalOpen}
-        onClose={() => setIsSupabaseModalOpen(false)}
-        onConnected={() => {
-          fetchData();
-        }}
-      />
 
       {/* Footer */}
       <footer className="border-t border-slate-900 bg-slate-950 py-6 text-center text-xs text-slate-500">

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { QrCode, Upload, Camera, RefreshCw, AlertCircle, CheckCircle2, ShieldAlert, ArrowRight, Play, Square } from 'lucide-react';
 import { ScanRecord } from '../types';
 import { decodeQRImage } from '../utils/qrDecoder';
+import { analyzeUrlClient } from '../utils/analyzer';
 import jsQR from 'jsqr';
 
 interface ScannerViewProps {
@@ -109,13 +110,19 @@ export const ScannerView: React.FC<ScannerViewProps> = ({ onScanComplete }) => {
       });
 
       if (!res.ok) {
-        throw new Error('Failed to communicate with scanning engine.');
+        throw new Error('Server scanning engine responded with error.');
       }
 
       const data: ScanRecord = await res.json();
       onScanComplete(data);
     } catch (err: any) {
-      setError(err.message || 'An error occurred during analysis.');
+      console.warn("Server scan API failed, using client-side fallback engine:", err);
+      try {
+        const localRecord = analyzeUrlClient(qrData);
+        onScanComplete(localRecord);
+      } catch (fallbackErr: any) {
+        setError(fallbackErr.message || 'An error occurred during analysis.');
+      }
     } finally {
       setLoading(false);
     }

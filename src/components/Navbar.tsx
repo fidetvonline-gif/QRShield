@@ -1,5 +1,6 @@
 import React from 'react';
-import { ShieldAlert, ShieldCheck, QrCode, History, LayoutDashboard, Terminal, Activity } from 'lucide-react';
+import { ShieldAlert, ShieldCheck, QrCode, History, LayoutDashboard, Terminal, Activity, Database } from 'lucide-react';
+import { getSupabaseCredentials } from '../utils/supabaseClient';
 
 interface NavbarProps {
   activeTab: string;
@@ -8,9 +9,13 @@ interface NavbarProps {
     totalScans: number;
     maliciousCount: number;
   } | null;
+  onOpenSupabase: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, stats }) => {
+export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, stats, onOpenSupabase }) => {
+  const { url } = getSupabaseCredentials();
+  const isSupabaseConnected = Boolean(url);
+
   return (
     <header className="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -81,17 +86,25 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, stats }
           </button>
         </nav>
 
-        {/* Status Indicator */}
+        {/* Status Indicator & Supabase Button */}
         <div className="flex items-center space-x-3">
-          <div className="hidden lg:flex items-center space-x-2 bg-slate-800/80 border border-slate-700 px-3 py-1.5 rounded-full text-xs text-slate-300">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span className="font-medium">Engines Active</span>
-          </div>
+          <button
+            onClick={onOpenSupabase}
+            className={`flex items-center space-x-2 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+              isSupabaseConnected
+                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20'
+                : 'bg-slate-800 border-slate-700 text-slate-300 hover:text-white hover:bg-slate-700'
+            }`}
+          >
+            <Database className={`w-3.5 h-3.5 ${isSupabaseConnected ? 'text-emerald-400' : 'text-slate-400'}`} />
+            <span>{isSupabaseConnected ? 'Supabase Connected' : 'Connect Supabase'}</span>
+            <span className={`w-2 h-2 rounded-full ${isSupabaseConnected ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}`}></span>
+          </button>
 
           {stats && stats.maliciousCount > 0 && (
             <div className="hidden sm:flex items-center space-x-1.5 bg-red-500/10 border border-red-500/30 px-3 py-1.5 rounded-full text-xs text-red-400 font-medium">
               <ShieldAlert className="w-3.5 h-3.5" />
-              <span>{stats.maliciousCount} Threats Blocked</span>
+              <span>{stats.maliciousCount} Threats</span>
             </div>
           )}
         </div>
